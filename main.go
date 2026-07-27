@@ -2,6 +2,7 @@ package main
 
 import (
 	"chess/lichess"
+	"context"
 	"fmt"
 	"log"
 	"os"
@@ -23,6 +24,24 @@ func main() {
 	lichessClient := lichess.NewLichessClient(
 		cfg.token,
 	)
-	fmt.Print(lichessClient)
-	fmt.Println("Created client successfully")
+
+	account, err := lichessClient.GetAccount(context.Background())
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Println("Authenticated as:", account.Username)
+
+	game, err := lichessClient.CreateComputerGame(
+		context.Background(),
+		lichess.ComputerGameOptions{
+			Level:          1,
+			ClockLimit:     300,
+			ClockIncrement: 0,
+			Color:          "random",
+		},
+	)
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Println("Game created:", lichessClient.BaseURL+game.ID)
 }
